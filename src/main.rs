@@ -24,7 +24,7 @@ async fn main() {
         // .route("/test/jwt", delete(route::users_teams_show))
         // .route("/test/file", post(route::users_teams_show))
         // .route("/test/form", delete(route::users_teams_show))
-        .route("/test/json", put(test::Test::json_data))//json 接收并用验证器严重(错误返回json错误) 返回json数据
+        .route("/test/json", put(test::Test::json_data))//json 接收并用验证器验证(错误返回json错误) 返回json数据
         .layer(middleware::from_fn(print_request_response));
 
     let app = app.fallback(handler_404.into_service());//使用了一个Handler的trait

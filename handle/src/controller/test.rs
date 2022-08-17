@@ -1,5 +1,6 @@
 use axum::{http::StatusCode, response::IntoResponse, Json};
-use crate::form::test::{ValidatedJson,JsonResponese,JsonRequest};
+use crate::form::test::{JsonResponese,JsonRequest};
+use crate::form::validate::ValidatedJson;
 pub struct Test {}
 
 impl Test {
