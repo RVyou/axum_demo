@@ -9,9 +9,10 @@ edition = "2021"
 handle = {path = "./handle"}
 lazy_static = "1.4.0"#全局延迟绑定静态变量
 mysql = "*"
-hyper = { version = "0.14", features = ["full"] }
+# hyper = { version = "0.14", features = ["full"] } 底层http 库 axum 和reqwest 也是基于它
 axum = "0.5.13" # web 服务器
 reqwest = { version = "0.11", default-features = false, features = ["rustls-tls"] } # HTTP 客户端
 tokio = { version = "1", features = ["full"]} # 异步库
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
