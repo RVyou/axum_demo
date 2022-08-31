@@ -17,4 +17,6 @@ validator = { version = "0.16.0", features = ["derive"] }#验证库
 thiserror = "1.0.29"
 async-trait = "0.1"
 http-body = "0.4.3"
-
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+chrono = "0.4" #时间库

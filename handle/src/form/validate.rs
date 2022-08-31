@@ -1,16 +1,16 @@
 use async_trait::async_trait;
 use axum::{
-    extract::{Form,FromRequest, RequestParts},
-    http::{StatusCode,header},
-    response::{IntoResponse, Response},
-    BoxError, Json, 
+    BoxError,
+    extract::{Form, FromRequest, RequestParts},
+    http::{header, StatusCode},
+    Json, response::{IntoResponse, Response},
 };
 use serde::de::DeserializeOwned;
 use serde_json::json;
 use thiserror::Error;
 use validator::Validate;
 
-//暂时只弄2个验证类 form 和json
+//验证类 form(or url) 和json
 #[derive(Debug, Clone, Copy, Default)]
 pub struct ValidatedJson<T>(pub T);
 
@@ -18,14 +18,13 @@ pub struct ValidatedJson<T>(pub T);
 pub struct ValidatedFrom<T>(pub T);
 
 
-
 #[async_trait]
 impl<T, B> FromRequest<B> for ValidatedJson<T>
-where
-    T: DeserializeOwned + Validate,
-    B: http_body::Body + Send,
-    B::Data: Send,
-    B::Error: Into<BoxError>,
+    where
+        T: DeserializeOwned + Validate,
+        B: http_body::Body + Send,
+        B::Data: Send,
+        B::Error: Into<BoxError>,
 {
     type Rejection = ServerError;
 
@@ -37,14 +36,13 @@ where
     }
 }
 
-
 #[async_trait]
 impl<T, B> FromRequest<B> for ValidatedFrom<T>
-where
-    T: DeserializeOwned + Validate,
-    B: http_body::Body + Send,
-    B::Data: Send,
-    B::Error: Into<BoxError>,
+    where
+        T: DeserializeOwned + Validate,
+        B: http_body::Body + Send,
+        B::Data: Send,
+        B::Error: Into<BoxError>,
 {
     type Rejection = ServerError;
 
@@ -56,13 +54,10 @@ where
     }
 }
 
-
-
 #[derive(Debug, Error)]
 pub enum ServerError {
     #[error(transparent)]
     ValidationError(#[from] validator::ValidationErrors),//validate 验证错误
-
 
     #[error(transparent)]
     AxumJsonRejection(#[from] axum::extract::rejection::JsonRejection),//axum json 验证错误
@@ -81,7 +76,7 @@ impl IntoResponse for ServerError {
                     "code": 400,
                     "err": format!("{}",self)
                 });
-                (StatusCode::BAD_REQUEST ,  [(header::CONTENT_TYPE, "application/json")], message.to_string())
+                (StatusCode::BAD_REQUEST, [(header::CONTENT_TYPE, "application/json")], message.to_string())
             }
             ServerError::AxumJsonRejection(_) => (
                 StatusCode::BAD_REQUEST,
@@ -90,7 +85,7 @@ impl IntoResponse for ServerError {
                     "code": 400,
                     "err":  self.to_string()
                 })
-                .to_string(),
+                    .to_string(),
             ),
             ServerError::AxumFormRejection(_) => (
                 StatusCode::BAD_REQUEST,
@@ -99,11 +94,9 @@ impl IntoResponse for ServerError {
                     "code": 400,
                     "err":  self.to_string()
                 })
-                .to_string(),
+                    .to_string(),
             ),
         }
-        .into_response()
+            .into_response()
     }
 }
-
-

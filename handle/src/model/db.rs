@@ -7,7 +7,7 @@ pub struct Mysql {
 }
 
 lazy_static! {
-    pub static ref POOL: Mysql = Mysql::new("mysql://root:mysqlpw@192.168.43.147:49153/test",10,30);
+    pub static ref POOL: Mysql = Mysql::new("mysql://root:mysqlpw@127.0.0.1:49153/test",10,30);
 }
 
 impl Mysql {

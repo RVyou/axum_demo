@@ -1,26 +1,34 @@
+use std::option::Option;
+
+use mysql::*;
+use mysql::prelude::*;
+
 use super::db::POOL;
-use mysql::PooledConn;
-use mysql::prelude::Queryable;
 
-
-
-#[derive(Debug, PartialEq, Eq)]
-pub struct User {
-    id: i32,
-    name: Option<String>,
-}
+pub struct User {}
 
 impl User {
-    pub fn get_user_by_id(id: i32) -> Result<User,()> {
-        let mut connet = POOL.get_connet().unwrap();
+    pub fn get_one_user<T: Into<Params>>(query: &str, params: T) -> Option<mysql::Row> {
+        let mut connet = if let Ok(c) = POOL.clone().get_connet() {
+            c
+        } else {
+            return None;
+        };
 
-        // let selected_payments = connet
-        //     .query_first_opt("SELECT * from table_name ")
-        //     .unwrap();
+        connet.exec_first(query, params).unwrap_or_else(|_e| {
+            Option::None
+        })
+    }
 
-        Ok(User {
-            id: 1,
-            name: Some("aa".to_string()),
+    pub fn modify_one_user<T: Into<Params>>(query: &str, params: T) -> Option<mysql::Row> {
+        let mut connet = if let Ok(c) = POOL.clone().get_connet() {
+            c
+        } else {
+            return None;
+        };
+
+        connet.exec_first(query, params).unwrap_or_else(|_e| {
+            Option::None
         })
     }
 }
