@@ -36,7 +36,7 @@ async fn main() {
 
     let test_router = Router::new()
         .route("/auth_header_token", delete(test::Test::auth))
-            .layer(middleware::from_fn(auth::auth))//多个layer 外出优先 例如括号一样 最后添加layer( （处理） ).layer(Extension(pool)))//共享变量 必须实现copy 或者 clone
+            .layer(middleware::from_fn(auth::auth))//多个layer 例如包裹括号一样 (2 （1处理） ).layer(Extension(pool)))//共享变量 必须实现copy 或者 clone
         .route("/file", post(test::Test::form_file))
         .route("/form", post(test::Test::form_data)) //form
         .route("/json", put(test::Test::json_data)); //json 接收并用验证器验证(错误返回json错误) 返回json数据
