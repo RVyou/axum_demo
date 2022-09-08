@@ -14,14 +14,13 @@ pub struct JsonProtocol<T: Serialize> {
 
 #[derive(Debug, Serialize)]
 pub struct JsonProtocolError {
-    pub error: Vec<String>,
+    pub errors: Vec<String>,
 }
 
 #[inline(always)]
 pub fn json_response<T>(code: StatusCode, header: HeaderMap, data: JsonProtocol<T>) -> Response where T: Serialize {
     (code, header, Json(data)).into_response()
 }
-
 
 pub fn json_success_response<T>(data: T) -> Response where T: Serialize {
     let mut headers = HeaderMap::new();
@@ -42,7 +41,7 @@ pub fn json_error_response(err: Vec<String>) -> Response {
         code: 500,
         message: "err".to_string(),//动态修改
         data: JsonProtocolError {
-            error: err
+            errors: err
         },
     })
 }

@@ -6,10 +6,10 @@ use axum::{
     middleware::{self, Next},
     response::IntoResponse,
     Router,
-    routing::{get, post, put},
+    routing::{delete, get, post, put},
 };
-//extract::{Extension},
 use handle::controller::*;
+use handle::middleware::test::Test as auth;
 use tokio::signal;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 use tracing_subscriber::filter::{EnvFilter, LevelFilter};
@@ -33,22 +33,30 @@ async fn main() {
         .with(tracing_subscriber::fmt::layer())
         .init();
     log_test();
-    let user_router = Router::new()
-        .route("/users/:user_id", get(user::UserController::user_message).put(user::UserController::user_modify));
-    // .route("/users/list", get(user::UserController::users_teams_show));
-    // let _poll = POOL.get_connet(); //lazy_static 运行到代码时才进行初始化
+
     let test_router = Router::new()
-        // .route("/test/auth_header_token", delete(route::users_teams_show))//.layer(Extension(pool)))//共享变量 必须实现copy 或者 clone
-        // .route("/test/file", post(route::users_teams_show))
+        .route("/auth_header_token", delete(test::Test::auth))
+            .layer(middleware::from_fn(auth::auth))//多个layer 外出优先 例如括号一样 最后添加layer( （处理） ).layer(Extension(pool)))//共享变量 必须实现copy 或者 clone
+        .route("/file", post(test::Test::form_file))
         .route("/form", post(test::Test::form_data)) //form
         .route("/json", put(test::Test::json_data)); //json 接收并用验证器验证(错误返回json错误) 返回json数据
+    let user_router = Router::new()
+        .route("/users/:user_id", get(user::UserController::user_message).put(user::UserController::user_modify))
+        .route("/users/list", get(user::UserController::get_users));
 
     let app = Router::new()
         .merge(user_router)
         .merge(Router::new().nest("/test", test_router))
-        .layer(middleware::from_fn(print_message)); //通用打印
+        .layer(middleware::from_fn(print_message)); //全局 通用打印
 
     let app = app.fallback(handler_404.into_service()); //使用了一个Handler的trait
+
+    //tokio 本身对 panic 进行 recover
+    let default_panic = std::panic::take_hook();
+    std::panic::set_hook(Box::new(move |info| {
+        default_panic(info);
+        std::process::exit(1);
+    }));
 
     axum::Server::bind(&"0.0.0.0:4000".parse().unwrap())
         .serve(app.into_make_service())

@@ -1,10 +1,11 @@
 use axum::{
     extract::Path,
     http::header::HeaderMap,
-    Json,
     response::IntoResponse,
 };
-use crate::form::{user::UserResponse,protocol::{json_success_response,json_error_response}};
+
+use crate::form::{protocol::{json_error_response, json_success_response}, user::{UserListRequest, UserModifyRequest}};
+use crate::form::validate::ValidatedFrom;
 use crate::services::user::UserService;
 
 pub struct UserController {}
@@ -17,14 +18,26 @@ impl UserController {
         }
         json_error_response(vec!["not user".to_string()])
     }
-    pub async fn user_modify(Path(user_id): Path<i32>, headers: HeaderMap) -> Json<UserResponse> {
-        println!("header is {:?}", headers);
-        println!("header is {:?}", user_id);
-
-        Json(UserResponse {
-            id: 1,
-            float: 1_f64,
-            name: String::from("_"),
-        })
+    pub async fn user_modify(Path(user_id): Path<i32>, ValidatedFrom(user_data): ValidatedFrom<UserModifyRequest>) -> impl IntoResponse {
+        tracing::info!("user data {:?}",user_data);
+        match UserService::modify(user_id, user_data) {
+            Ok(user_data) => {
+                return json_success_response(user_data);
+            }
+            Err(e) => {
+                json_error_response(vec![e.to_string()])
+            }
+        }
+    }
+    //get_users 这样是必填字段原生 axum::extract::Query,
+    pub async fn get_users(ValidatedFrom(user_data): ValidatedFrom<UserListRequest>) -> impl IntoResponse {
+        match UserService::get_users(user_data).await {
+            Ok(user_data) => {
+                return json_success_response(user_data);
+            }
+            Err(e) => {
+                json_error_response(vec![e.to_string()])
+            }
+        }
     }
 }
