@@ -1,7 +1,7 @@
 use mysql::{from_row, from_value, Value};
 use time::{OffsetDateTime, PrimitiveDateTime};
 
-use crate::form::comment::Page;
+use crate::form::common::Page;
 use crate::form::user::*;
 use crate::model::user::User;
 

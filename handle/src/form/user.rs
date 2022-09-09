@@ -4,7 +4,7 @@ use time::serde::rfc3339;
 use validator::Validate;
 use validator::ValidationError;
 
-use super::comment::Page;
+use super::common::Page;
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct UserResponse {
